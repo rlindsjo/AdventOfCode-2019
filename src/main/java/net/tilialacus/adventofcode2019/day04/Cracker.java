@@ -20,4 +20,28 @@ public class Cracker {
         }
         return twin;
     }
-}
+
+    public static boolean isValid2(int val) {
+        if (val < 10) {
+            return false;
+        }
+        boolean twin = false;
+        int twinCount = 0;
+        int prev = val % 10;
+        while ((val /= 10) > 0) {
+            int current = val % 10;
+            if (current > prev) {
+                return false;
+            }
+            if (current == prev) {
+                twinCount++;
+            } else {
+                if (twinCount == 1) {
+                    twin = true;
+                }
+                twinCount = 0;
+            }
+            prev = current;
+        }
+        return twin || twinCount == 1;
+    }}
