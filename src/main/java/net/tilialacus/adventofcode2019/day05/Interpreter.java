@@ -54,6 +54,18 @@ public class Interpreter {
             case 4:
                 instruction = OUT;
                 break;
+            case 5:
+                instruction = JNZ;
+                break;
+            case 6:
+                instruction = JZ;
+                break;
+            case 7:
+                instruction = LT;
+                break;
+            case 8:
+                instruction = EQ;
+                break;
             case 99:
                 instruction = HALT;
                 break;
@@ -96,6 +108,38 @@ public class Interpreter {
         }
     };
 
+    private  final Instruction JNZ = new Instruction2Op() {
+        @Override
+        public void process() {
+            if (p1() != 0) {
+                instructionPointer = p2(false) - size();
+            }
+        }
+    };
+
+    private  final Instruction LT = new Instruction3Op() {
+        @Override
+        public void process() {
+            write(p3(true), p1() < p2() ? 1 : 0);
+        }
+    };
+
+    private  final Instruction EQ = new Instruction3Op() {
+        @Override
+        public void process() {
+            write(p3(true), p1() == p2() ? 1 : 0);
+        }
+    };
+
+    private  final Instruction JZ = new Instruction2Op() {
+        @Override
+        public void process() {
+            if (p1() == 0) {
+                instructionPointer = p2(false) - size();
+            }
+        }
+    };
+
     private final Instruction HALT = new Instruction() {
         @Override
         public int size() {
@@ -124,6 +168,21 @@ public class Interpreter {
 
         int p3(boolean out) {
             return out ? read(instructionPointer + 3) : mode(10000, read(instructionPointer + 3));
+        }
+    }
+
+    private abstract class Instruction2Op implements Instruction {
+        @Override
+        public int size() {
+            return 3;
+        }
+
+        int p1() {
+            return mode(100, read(instructionPointer + 1));
+        }
+
+        int p2(boolean out) {
+            return out ? read(instructionPointer + 2) : mode(1000, read(instructionPointer + 2));
         }
     }
 
