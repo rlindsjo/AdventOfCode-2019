@@ -1,21 +1,21 @@
 package net.tilialacus.adventofcode2019.day03;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 
 public class Tracer {
 
-    private static final Comparator<Point> MANHATTAN = Comparator.comparing(net.tilialacus.adventofcode2019.day03.Tracer.Point::distance);
+    public static final Comparator<Intersection> MANHATTAN = Comparator.comparing(Tracer.Intersection::distance);
+    public static final Comparator<Intersection> STEPS = Comparator.comparing(Tracer.Intersection::steps);
 
     public Set<Point> trace(String line) {
         Set<Point> points = new HashSet<>();
         String[] segments = line.split(",");
         int x = 0;
         int y = 0;
+        int totalSteps = 0;
         for (String segment : segments) {
             int steps = Integer.parseInt(segment.substring(1));
             for (int i = 0; i < steps; i++) {
@@ -35,28 +35,41 @@ public class Tracer {
                     default:
                         throw new IllegalStateException("Don't understand " + segment);
                 }
-                points.add(new Point(x, y));
+                points.add(new Point(x, y, ++totalSteps));
             }
         }
         return points;
     }
 
     public int closest(Set<Point> one, Set<Point> two) {
-        Point point = one.stream()
-                .filter(two::contains)
+        Point point = intersections(one, two)
+                .stream()
                 .sorted(MANHATTAN)
                 .collect(Collectors.toList())
-                .get(0);
+                .get(0).point1;
         return point.distance();
+    }
+
+    public List<Intersection> intersections(Set<Point> one, Set<Point> two) {
+        Map<Point, Point> map = two.stream().collect(Collectors.toMap(it -> it, it -> it));
+        List<Intersection> intersections = new ArrayList<>();
+        for (Point point : one) {
+            if (map.containsKey(point)) {
+                intersections.add(new Intersection(point, map.get(point)));
+            }
+        }
+        return intersections;
     }
 
     static class Point {
         private final int x;
         private final int y;
+        private final int steps;
 
-        public Point(int x, int y) {
+        public Point(int x, int y, int steps) {
             this.x = x;
             this.y = y;
+            this.steps = steps;
         }
 
         @Override
@@ -77,6 +90,28 @@ public class Tracer {
 
         public int distance() {
             return abs(x) + abs(y);
+        }
+
+        public int steps() {
+            return steps;
+        }
+    }
+
+    static class Intersection {
+        private final Point point1;
+        private final Point point2;
+
+        public Intersection(Point point1, Point point2) {
+            this.point1 = point1;
+            this.point2 = point2;
+        }
+
+        public int distance() {
+            return point1.distance();
+        }
+
+        public int steps() {
+            return point1.steps() + point2.steps();
         }
     }
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,5 +28,14 @@ class TracerTest {
         Set<Tracer.Point> trace1 = tracer.trace(reader.readLine());
         Set<Tracer.Point> trace2 = tracer.trace(reader.readLine());
         assertEquals(896, tracer.closest(trace1, trace2));
+    }
+
+    @Test
+    void answer2() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("input1.txt")));
+        Tracer tracer = new Tracer();
+        Set<Tracer.Point> trace1 = tracer.trace(reader.readLine());
+        Set<Tracer.Point> trace2 = tracer.trace(reader.readLine());
+        assertEquals(16524, tracer.intersections(trace1, trace2).stream().sorted(Tracer.STEPS).mapToInt(Tracer.Intersection::steps).findFirst().orElseThrow(IllegalStateException::new));
     }
 }
